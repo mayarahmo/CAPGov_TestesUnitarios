@@ -5,8 +5,7 @@
     <classes>
       <class name="TestaCaixaDeEntrada">
         <methods>
-          <include name="testaPagination"/>
-          <include name="tearDown"/>
+          <include name="testaIrPara"/>
           <include name="testaLoginSiapcon"/>
           <include name="setUp"/>
         </methods>

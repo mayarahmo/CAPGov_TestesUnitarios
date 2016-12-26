@@ -22,7 +22,7 @@ import org.openqa.selenium.Keys;
 
 import com.gargoylesoftware.htmlunit.javascript.host.Console;
 
-// classe que testa o cadastro de um processo
+// classe que testa os comportamentos de paginação das Caixa de Entrada do SIAPCON
 public class TestaCaixaDeEntrada {
 	
 	// System.getProperty("user.dir") pega o caminho do projeto
@@ -68,7 +68,8 @@ public class TestaCaixaDeEntrada {
 	 }
 	 
 	 
-	 // Testa paginação
+	 // Testa combobox de paginação
+	 /*
 	 @Test (dependsOnGroups = "login", groups = "pagination")
 	 public void testaPagination() throws Exception {
 		 
@@ -114,12 +115,71 @@ public class TestaCaixaDeEntrada {
 			 throw(e);
 		 }
 		 
+	 }*/
+	 
+	 // testa a o botão irpara
+	 @Test (dependsOnGroups = "login", groups = "irpara" )
+	 public void testaIrPara() throws Exception{
+		 
+		 driver.navigate().to("http://52.1.49.37/SIAPCON_SPRINT1"+sprintNumber+"/ListarProcessos.jsf?(Not.Licensed.For.Production)=");
+		 
+		 try{
+			 // div que contêm a página atual e o total de páginas
+			 WebElement divPagination = driver.findElement(By.id("RichWidgets_wt88:wtMainContent:wtpaginacaoWidget:wtdivPagina"));
+			 
+			 // string separadora da contagem de página
+			 String pageSeparator = "/";
+			 
+			 // índice da String separadora da contagem de página
+			 Integer separatorPosition = divPagination.getText().indexOf(pageSeparator);
+			 
+			 // forma a string com o total de páginas na Caixa de Entrada
+			 String totalPaginas = divPagination.getText().substring(separatorPosition+1, divPagination.getText().length());
+			 
+			 // gera um inteiro dentro do intervalo de páginas que há
+			 Random number = new Random();
+			 Integer validPage = number.nextInt(Integer.parseInt(totalPaginas));
+			 if (validPage == 0){validPage++;}
+		
+			 // escreve o inteiro no input de paginação
+			 WebElement paginationInput = driver.findElement(By.id("RichWidgets_wt88:wtMainContent:wtpaginacaoWidget:wtirParaPaginaWidget"));
+			 paginationInput.clear();
+			 paginationInput.sendKeys(validPage.toString());
+			 
+			 // clica no botão ir para
+			 WebElement btnIrPara = driver.findElement(By.id("RichWidgets_wt88:wtMainContent:wtpaginacaoWidget:wt7"));
+			 btnIrPara.click();
+			 
+			 // Dá um tempo para as requisições Ajax terminarem em milisec impedindo o Selenium de prosseguir
+			 // Para o DOM terminar de ser recarregado
+			 Thread.sleep(60000);
+			 
+			 // div que contêm a página atual e o total de páginas
+			 divPagination = driver.findElement(By.id("RichWidgets_wt88:wtMainContent:wtpaginacaoWidget:wtdivPagina"));
+			 
+			 // forma a string com a página atual
+			 // Pega tudo até a barra pra depois remover o que não é número
+			 totalPaginas = divPagination.getText().substring(0, separatorPosition+1);
+			 
+			 // remove os espaços
+			 totalPaginas = totalPaginas.replaceAll(" ", "");
+			 // remove as barras
+			 totalPaginas = totalPaginas.replaceAll("/", "");
+			 // remove os caracteres não numéricos
+			 totalPaginas = totalPaginas.replaceAll("[^0-9]", "");
+			
+			 // compara com a página que foi setada no input
+			 if (!(validPage == Integer.parseInt(totalPaginas))){Assert.fail("Número da página atual não é o mesmo setado no input de navegação de páginas");}
+		 }catch (Exception e){
+			 throw(e);
+		 } 
 	 }
 	 
 	 // Ao terminar a sequência de testes anterior fecha o navegador
-	 @AfterClass (dependsOnGroups = "pagination")
+	 @AfterClass (dependsOnGroups = "irpara")
 	 public void tearDown() {
 		
+		System.out.println("--- Tests Chrome Finished ---");
 		if(driver!=null) {
 			System.out.println("Closing chrome browser");
 			driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
